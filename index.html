@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#b91c1c" />
+    <title>Yasi Products Management System</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div id="loginScreen" class="login-screen">
+      <form id="loginForm" class="login-card" autocomplete="off">
+        <img id="loginLogo" class="login-logo" alt="Yasi Products" />
+        <h1>Yasi Products</h1>
+        <p>Sign in to manage way bills &amp; invoices.</p>
+        <label>Username<input id="loginUsername" type="text" autocomplete="username" required /></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+        <div id="loginError" class="login-error"></div>
+        <button type="submit" class="btn dark login-btn">Sign In</button>
+      </form>
+    </div>
+    <div id="appRoot" class="app-root hidden">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">Y</div>
+        <div>
+          <div class="brand-title">Yasi Products</div>
+          <div class="brand-subtitle">Way Bill & Invoice Management</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="quickWaybillBtn">+ New Way Bill</button><button class="btn dark" id="quickInvoiceBtn">+ New Invoice</button>
+      </div>
+    </header>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <button class="nav-item active" data-view="dashboardView"><span>▦</span>Dashboard</button>
+        <div class="nav-group">
+          <button class="nav-item" id="waybillsMainNav" data-view="waybillView"><span>▤</span>Way Bills</button>
+          <div class="subnav" id="waybillSubnav">
+            <button class="subnav-item" data-view="waybillView" data-action="new-waybill">New Way Bill</button>
+            <button class="subnav-item" data-view="waybillSavedView">Saved Way Bills</button>
+          </div>
+        </div>
+        <div class="nav-group">
+          <button class="nav-item" id="invoicesMainNav" data-view="invoiceView"><span>▧</span>Invoices</button>
+          <div class="subnav" id="invoiceSubnav">
+            <button class="subnav-item" data-view="invoiceView" data-action="new-invoice">New Invoice</button>
+            <button class="subnav-item" data-view="invoiceSavedView">Saved Invoices</button>
+          </div>
+        </div>
+        <button class="nav-item" data-view="documentsView"><span>☰</span>Documents</button>
+        <button class="nav-item" data-view="trashView"><span>🗑</span>Trash</button>
+        <button class="nav-item" id="changePasswordBtn"><span>⚙</span>Change Login Details</button>
+        <button class="nav-item" id="logoutBtn"><span>⏻</span>Logout</button>
+        <div class="sidebar-foot">All data is stored locally in this browser.</div>
+      </aside>
+      <main class="content">
+        <section id="dashboardView" class="view active-view">
+          <div class="page-head">
+            <div>
+              <h1>Dashboard</h1>
+              <p>Operational overview of saved documents and shipment values.</p>
+            </div>
+            <div class="dashboard-filter">
+              <select id="dashboardPeriod" title="Filter dashboard by time period">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+                <option value="custom">Custom Range</option>
+              </select>
+              <input type="date" id="dashboardFrom" style="display: none" />
+              <input type="date" id="dashboardTo" style="display: none" />
+              <div class="head-date" id="dashboardDate"></div>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Way Bills</div>
+              <div class="stat-value" id="statWaybills">0</div>
+              <div class="stat-note">Saved locally</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Invoices</div>
+              <div class="stat-value" id="statInvoices">0</div>
+              <div class="stat-note">Saved locally</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Packages</div>
+              <div class="stat-value" id="statPackages">0</div>
+              <div class="stat-note">From saved way bills</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Shipment Weight</div>
+              <div class="stat-value" id="statWeight">0.00 kg</div>
+              <div class="stat-note">From saved way bills</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Vacuum Total</div>
+              <div class="stat-value stat-value-small" id="statVacuum">0.00</div>
+              <div class="stat-note">From saved way bills</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Shipment Total</div>
+              <div class="stat-value stat-value-small" id="statShipment">0.00</div>
+              <div class="stat-note">From saved way bills</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Invoice Totals</div>
+              <div class="stat-value stat-value-small" id="statInvoiceValue">0.00</div>
+              <div class="stat-note">LKR totals only</div>
+            </div>
+          </div>
+          <div class="dashboard-grid">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Quick Actions</h2>
+                  <p>Create or manage documents.</p>
+                </div>
+              </div>
+              <div class="quick-grid">
+                <button class="quick-card" id="dashNewWaybill">
+                  <span class="quick-icon">＋</span><b>New Way Bill</b><small>Create shipment document</small>
+                </button>
+                <button class="quick-card" id="dashNewInvoice">
+                  <span class="quick-icon">＋</span><b>New Invoice</b><small>Create customer invoice</small>
+                </button>
+                <button class="quick-card" id="dashWaybills">
+                  <span class="quick-icon">▤</span><b>Saved Way Bills</b><small>Open and manage records</small>
+                </button>
+                <button class="quick-card" id="dashInvoices">
+                  <span class="quick-icon">▧</span><b>Saved Invoices</b><small>Open and manage invoices</small>
+                </button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Operational Summary</h2>
+                  <p>Current saved-data status.</p>
+                </div>
+              </div>
+              <div class="summary-grid">
+                <div><span>Way Bills This Month</span><b id="monthWaybills">0</b></div>
+                <div><span>Invoices This Month</span><b id="monthInvoices">0</b></div>
+                <div><span>Paid Invoices</span><b id="paidInvoices">0</b></div>
+                <div><span>Outstanding Invoices</span><b id="outstandingInvoices">0</b></div>
+                <div><span>Express Saver</span><b id="expressShipments">0</b></div>
+                <div><span>Expedited</span><b id="expeditedShipments">0</b></div>
+                <div><span>Economy Service</span><b id="economyShipments">0</b></div>
+                <div><span>Vacuum Items</span><b id="vacuumItems">0</b></div>
+              </div>
+            </div>
+            <div class="panel dashboard-recent-panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Recent Documents</h2>
+                  <p>Latest saved way bills and invoices.</p>
+                </div>
+                <button class="btn" id="viewAllDocs">View all</button>
+              </div>
+              <div id="recentDocs"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="waybillView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Way Bill</h1>
+              <p>Prepare, save, print and download a one-page A4 way bill.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn" id="newWaybillBtn">New Way Bill</button><button class="btn" id="saveWaybillBtn">Save</button
+              ><button class="btn dark" id="pdfWaybillBtn">Download PDF</button
+              ><button class="btn primary" id="printWaybillBtn">Print A4</button>
+            </div>
+          </div>
+          <div class="workspace-grid">
+            <section class="panel form-panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Way Bill Details</h2>
+                  <p>Enter shipment information.</p>
+                </div>
+                <span class="status" id="waybillStatus">New way bill</span>
+              </div>
+              <form id="waybillForm" autocomplete="off">
+                <div class="section-title">Document</div>
+                <div class="grid two">
+                  <label>Invoice No.<input id="wbInvoiceNo" /><small>Auto-generated; manual editing is allowed.</small></label
+                  ><label>Date of Export<input id="wbDateExport" type="date" /></label
+                  ><label class="full">Export References<input id="wbExportReferences" /></label>
+                </div>
+                <div class="section-title">Parties</div>
+                <div class="grid two">
+                  <label>Shipper / Exporter<textarea id="wbShipper"></textarea></label
+                  ><label>Recipient<textarea id="wbRecipient"></textarea></label
+                  ><label>Country of Export<select id="wbCountryExport" class="country-select"></select></label
+                  ><label>Importer - if other than recipient<textarea id="wbImporter" rows="3"></textarea></label
+                  ><label
+                    >Country of Manufacture<select id="wbCountryManufacture" class="country-select"></select></label
+                  ><label
+                    >Country of Ultimate Destination<select id="wbCountryDestination" class="country-select"></select></label
+                  ><label>International Air Waybill Number<input id="wbAwbNumber" /></label
+                  ><label>Currency<select id="wbCurrency"></select></label>
+                </div>
+                <div class="section-title row-title">
+                  <span>Shipment</span><button type="button" class="icon-btn" id="addShipmentBtn">+</button>
+                </div>
+                <div class="table-wrap">
+                  <div class="shipment-header">
+                    <span>No. of Pkgs</span><span>Weight (kg)</span><span>Unit Value</span><span>Total Value</span><span></span>
+                  </div>
+                  <div id="shipmentRows"></div>
+                  <div class="table-note">Total Value = Weight × Unit Value. Total Weight = sum of all shipment row weights.</div>
+                </div>
+                <div class="shipment-type-row">
+                  <span class="sub-label">Type of Shipment</span>
+                  <div class="shipment-type-options">
+                    <label><input type="radio" name="shipmentType" value="Express Saver" checked /> Express Saver</label
+                    ><label><input type="radio" name="shipmentType" value="Expedited" /> Expedited</label
+                    ><label><input type="radio" name="shipmentType" value="Economy Service" /> Economy Service</label>
+                  </div>
+                </div>
+                <div class="section-title row-title">
+                  <span>Vacuum Packing Charges</span><button type="button" class="icon-btn" id="addBagBtn">+</button>
+                </div>
+                <div class="table-wrap">
+                  <div class="bag-header">
+                    <span>Item</span><span>Unit Value</span><span>Qty</span><span>Total Value</span><span></span>
+                  </div>
+                  <div id="bagRows"></div>
+                  <div class="table-note">Select an item from the dropdown. Total Value = Unit Value × Qty.</div>
+                </div>
+                <div class="section-title">Totals</div>
+                <div class="grid two">
+                  <label>Total No. of Pkgs<input id="wbTotalPackages" readonly /></label
+                  ><label>Total Weight<input id="wbTotalWeight" readonly /></label
+                  ><label>Total Value of Pkgs<input id="wbTotalPackageValue" readonly /></label
+                  ><label>Total Value of Vacuum<input id="wbTotalVacuumValue" readonly /></label
+                  ><label>Discount<input id="wbDiscount" type="number" min="0" step="0.01" value="0" /></label
+                  ><label>Total Invoice Value<input id="wbTotalInvoiceValue" readonly /></label>
+                </div>
+                <div class="section-title">Declaration</div>
+                <div class="grid two">
+                  <label>Signature of shipper / exporter<input id="wbSignatureName" /></label
+                  ><label>Date<input id="wbSignatureDate" type="date" /></label>
+                </div>
+              </form>
+            </section>
+            <section class="panel preview-panel">
+              <div class="panel-head">
+                <div>
+                  <h2>A4 Preview</h2>
+                  <p>Custom Yasi Products layout. Print and PDF use the same 1-page artwork.</p>
+                </div>
+                <span class="live-dot">LIVE</span>
+              </div>
+              <div class="preview-wrap"><canvas id="waybillCanvas" width="1489" height="2105"></canvas></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="waybillSavedView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Saved Way Bills</h1>
+              <p>Search, open or delete saved way bills.</p>
+            </div>
+            <div class="page-actions"><button class="btn primary" id="savedNewWaybillBtn">+ New Way Bill</button></div>
+          </div>
+          <section class="panel">
+            <div class="search-row"><input id="waybillSearch" placeholder="Search invoice no. or recipient" /></div>
+            <div id="savedWaybillList" class="saved-list"></div>
+          </section>
+        </section>
+
+        <section id="invoiceView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Invoices</h1>
+              <p>Professional A4 customer invoice.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn" id="newInvoiceBtn">New Invoice</button><button class="btn" id="saveInvoiceBtn">Save</button
+              ><button class="btn dark" id="pdfInvoiceBtn">Download PDF</button
+              ><button class="btn primary" id="printInvoiceBtn">Print A4</button>
+            </div>
+          </div>
+          <div class="workspace-grid">
+            <section class="panel form-panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Invoice Details</h2>
+                  <p>Create, save, print and download invoices.</p>
+                </div>
+                <span class="status" id="invoiceStatus">New invoice</span>
+              </div>
+              <form id="invoiceForm" autocomplete="off">
+                <div class="section-title">Invoice</div>
+                <div class="grid three">
+                  <label>Invoice No.<input id="invNumber" /><small>Auto-generated; manual editing is allowed.</small></label
+                  ><label>Invoice Date<input id="invDate" type="date" /></label><label>Due Date<input id="invDueDate" type="date" /></label
+                  ><label
+                    >Status<select id="invStatus">
+                      <option>Draft</option>
+                      <option>Issued</option>
+                      <option>Paid</option>
+                      <option>Cancelled</option>
+                    </select></label
+                  ><label>Currency<select id="invCurrency"></select></label><label>Reference<input id="invReference" /></label>
+                </div>
+                <div class="section-title">Customer</div>
+                <div class="grid two">
+                  <label>Bill To<textarea id="invBillTo" rows="5"></textarea></label
+                  ><label>Ship To<textarea id="invShipTo" rows="5"></textarea></label>
+                </div>
+                <div class="section-title row-title">
+                  <span>Food / Other Services</span><button type="button" class="icon-btn" id="addInvoiceItemBtn">+</button>
+                </div>
+                <div class="table-wrap">
+                  <div class="invoice-item-header">
+                    <span>Description</span><span>Weight (kg)</span><span>Unit Price</span><span>Amount</span><span></span>
+                  </div>
+                  <div id="invoiceItems"></div>
+                  <div class="table-note">Amount = Weight (kg) × Unit Price.</div>
+                </div>
+                <div class="section-title row-title">
+                  <span>Vacuum Packing Charges</span><button type="button" class="icon-btn" id="addInvBagBtn">+</button>
+                </div>
+                <div class="table-wrap">
+                  <div class="inv-bag-header">
+                    <span>Item</span><span>Unit Value</span><span>Qty</span><span>Total Value</span><span></span>
+                  </div>
+                  <div id="invBagRows"></div>
+                  <div class="table-note">Select an item from the dropdown. Total Value = Unit Value × Qty.</div>
+                </div>
+                <div class="invoice-summary-form">
+                  <label>Discount<input id="invDiscount" type="number" min="0" step="0.01" value="0" /></label
+                  ><label>Advance Payment<input id="invAdvance" type="number" min="0" step="0.01" value="0" /></label
+                  ><label>Notes<textarea id="invNotes" rows="4"></textarea></label
+                  ><label>Payment Terms<textarea id="invTerms" rows="4"></textarea></label>
+                </div>
+              </form>
+            </section>
+            <section class="panel invoice-preview-panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Invoice Preview</h2>
+                  <p>Professional one-page A4 invoice.</p>
+                </div>
+                <span class="live-dot">LIVE</span>
+              </div>
+              <div class="preview-wrap"><canvas id="invoiceCanvas" width="1489" height="2105"></canvas></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="invoiceSavedView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Saved Invoices</h1>
+              <p>Search, open or delete saved invoices.</p>
+            </div>
+            <div class="page-actions"><button class="btn primary" id="savedNewInvoiceBtn">+ New Invoice</button></div>
+          </div>
+          <section class="panel">
+            <div class="search-row"><input id="invoiceSearch" placeholder="Search invoice no. or customer" /></div>
+            <div id="savedInvoiceList" class="saved-list"></div>
+          </section>
+        </section>
+
+        <section id="documentsView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Documents</h1>
+              <p>All saved way bills and invoices.</p>
+            </div>
+          </div>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Document Register</h2>
+                <p>Search and manage saved documents.</p>
+              </div>
+            </div>
+            <div class="search-row"><input id="documentSearch" placeholder="Search invoice no., recipient or customer" /></div>
+            <div id="documentsTable" class="documents-table"></div>
+          </section>
+        </section>
+
+        <section id="trashView" class="view">
+          <div class="page-head">
+            <div>
+              <h1>Trash</h1>
+              <p>Deleted way bills and invoices. Restore them or remove them permanently.</p>
+            </div>
+          </div>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Deleted Documents</h2>
+                <p>Search and restore deleted documents.</p>
+              </div>
+            </div>
+            <div class="search-row"><input id="trashSearch" placeholder="Search invoice no., recipient or customer" /></div>
+            <div id="trashTable" class="documents-table"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+    </div>
+    <div id="toast" class="toast"></div>
+    <div id="printRoot" class="print-root"></div>
+    <div id="changePasswordModal" class="modal-overlay hidden">
+      <form id="changePasswordForm" class="login-card">
+        <button type="button" id="cpCloseBtn" class="modal-close" aria-label="Close">×</button>
+        <h1>Change Login Details</h1>
+        <p>Update your username and/or password.</p>
+        <label>Current Password<input id="cpCurrentPassword" type="password" autocomplete="current-password" required /></label>
+        <label>New Username<input id="cpNewUsername" type="text" autocomplete="username" required /></label>
+        <label>New Password<input id="cpNewPassword" type="password" autocomplete="new-password" placeholder="Leave blank to keep current" /></label>
+        <label>Confirm New Password<input id="cpConfirmPassword" type="password" autocomplete="new-password" /></label>
+        <div id="cpError" class="login-error"></div>
+        <button type="submit" class="btn dark login-btn">Save Changes</button>
+      </form>
+    </div>
+    <script src="js/data.js"></script>
+    <script src="js/logo.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
